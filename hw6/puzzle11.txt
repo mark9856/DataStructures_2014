@@ -1,0 +1,5 @@
+4 4
+robot A 1 1
+robot B 4 1
+goal A 1 4
+goal B 1 1

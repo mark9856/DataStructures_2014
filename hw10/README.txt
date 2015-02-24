@@ -1,0 +1,34 @@
+HOMEWORK 10: MULTIPLE INHERITANCE & EXCEPTIONS
+
+
+NAME:  < insert name >
+Huiyu Ma
+
+
+COLLABORATORS AND OTHER RESOURCES:
+List the names of everyone you talked to about this assignment
+(classmates, TAs, ALAC tutors, upperclassmen, students/instructor via
+LMS, etc.), and all of the resources (books, online reference
+material, etc.) you consulted in completing this assignment.
+
+< insert collaborators / resources >
+Terry Liu
+
+Remember: Your implementation for this assignment must be done on your
+own, as described in "Academic Integrity for Homework" handout.
+
+
+
+ESTIMATE OF # OF HOURS SPENT ON THIS ASSIGNMENT:  < insert # hours >
+15
+
+
+MISC. COMMENTS TO GRADER:  
+Optional, please be concise!
+In my own computer, there is nothing wrong, but when I submit my code, I found out that for the parallelogram, the total is 3, but in my computer, the number is 4, and run correctly in my computer, I had tried hard but can’t find the problem
+
+
+
+
+
+

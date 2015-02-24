@@ -1,0 +1,26 @@
+load 1.txt 2 ignore_punctuation
+
+print "could"
+print "not"
+print "and"
+print "the"
+print "forest"
+
+
+generate "could" 4 most_common
+
+generate "could" 4 random
+generate "could" 4 random
+generate "could" 4 random
+generate "could" 4 random
+generate "could" 4 random
+
+generate "could" 10 most_common
+
+generate "could" 10 random
+generate "could" 10 random
+generate "could" 10 random
+generate "could" 10 random
+generate "could" 10 random
+
+quit

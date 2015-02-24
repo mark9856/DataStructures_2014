@@ -1,0 +1,2 @@
+work for different objects, but for the same object,
+it will delete the original data, and leave the copy unable

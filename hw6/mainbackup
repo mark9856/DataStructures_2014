@@ -1,0 +1,385 @@
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <cstdlib>
+#include <string>
+#include <cassert>
+#include <map>
+
+#include "board.h"
+
+// ==================================================================================
+// ==================================================================================
+
+// This function is called if there was an error with the command line arguments
+bool usage(const std::string &executable_name) {
+    std::cerr << "Usage: " << executable_name << " <puzzle_file>" << std::endl;
+    std::cerr << "       " << executable_name << " <puzzle_file> -max_moves <#>" << std::endl;
+    std::cerr << "       " << executable_name << " <puzzle_file> -all_solutions" << std::endl;
+    std::cerr << "       " << executable_name << " <puzzle_file> -visualize <which_robot>" << std::endl;
+    std::cerr << "       " << executable_name << " <puzzle_file> -max_moves <#> -all_solutions" << std::endl;
+    std::cerr << "       " << executable_name << " <puzzle_file> -max_moves <#> -visualize <which_robot>" << std::endl;
+    exit(0);
+}
+
+// ==================================================================================
+// ==================================================================================
+
+// load a Ricochet Robots puzzle from the input file
+Board load(const std::string &executable, const std::string &filename) {
+
+    // open the file for reading
+    std::ifstream istr (filename.c_str());
+    if (!istr) {
+        std::cerr << "ERROR: could not open " << filename << " for reading" << std::endl;
+        usage(executable);
+    }
+
+    // read in the board dimensions and create an empty board
+    // (all outer edges are automatically set to be walls
+    int rows,cols;
+    istr >> rows >> cols;
+    assert (rows > 0 && cols > 0);
+    Board answer(rows,cols);
+
+    // read in the other characteristics of the puzzle board
+    std::string token;
+    while (istr >> token) {
+        if (token == "robot") {
+            char a;
+            int r,c;
+            istr >> a >> r >> c;
+            answer.placeRobot(Position(r,c),a);
+        } else if (token == "vertical_wall") {
+            int i;
+            double j;
+            istr >> i >> j;
+            answer.addVerticalWall(i,j);
+        } else if (token == "horizontal_wall") {
+            double i;
+            int j;
+            istr >> i >> j;
+            answer.addHorizontalWall(i,j);
+        } else if (token == "goal") {
+            std::string which_robot;
+            int r,c;
+            istr >> which_robot >> r >> c;
+            answer.addGoal(which_robot,Position(r,c));
+        } else {
+            std::cerr << "ERROR: unknown token in the input file " << token << std::endl;
+            exit(0);
+        }
+    }
+
+    // return the initialized board
+    return answer;
+}
+
+//visualize(primeRobot, max_moves, visualizeMap);
+void visualizeMove(int &primeRobot, int max_moves, std::vector<std::vector<char> > &visualizeMap, Board boardCopy, int count){
+    if(count == 0){
+        count ++;
+        Position pos = boardCopy.getRobotPosition(primeRobot);
+        
+        visualizeMap[pos.row - 1][pos.col - 1] = '0';
+    }
+    if(count > 0){
+        if(count <= max_moves){
+            for(int i = 0; i < boardCopy.numRobots(); ++ i){
+                Position posOriginal = boardCopy.getRobotPosition(i);
+                if(boardCopy.moveRobot(i, "north")){
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(i == primeRobot){
+                        Position pos = boardCopy.getRobotPosition(primeRobot);
+                        if(visualizeMap[pos.row - 1][pos.col - 1] == '.' || 
+                                count < visualizeMap[pos.row - 1][pos.col - 1] - '0'){
+                            visualizeMap[pos.row - 1][pos.col - 1] = count + '0';
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        visualizeMove(primeRobot, max_moves, visualizeMap, boardCopy, count + 1);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+
+                if(boardCopy.moveRobot(i, "south")){
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(i == primeRobot){
+                        Position pos = boardCopy.getRobotPosition(primeRobot);
+                        if(visualizeMap[pos.row - 1][pos.col - 1] == '.'
+                                || count < visualizeMap[pos.row - 1][pos.col - 1] - '0'){
+                            visualizeMap[pos.row - 1][pos.col - 1] = count + '0';
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        visualizeMove(primeRobot, max_moves, visualizeMap, boardCopy, count + 1);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+
+                if(boardCopy.moveRobot(i, "east")){
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(i == primeRobot){
+                        Position pos = boardCopy.getRobotPosition(primeRobot);
+                        if(visualizeMap[pos.row - 1][pos.col - 1] == '.' 
+                                || count < visualizeMap[pos.row - 1][pos.col - 1] - '0'){
+                            visualizeMap[pos.row - 1][pos.col - 1] = count + '0';
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        visualizeMove(primeRobot, max_moves, visualizeMap, boardCopy, count + 1);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+
+                if(boardCopy.moveRobot(i, "west")){
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(i == primeRobot){
+                        Position pos = boardCopy.getRobotPosition(primeRobot);
+                        if(visualizeMap[pos.row - 1][pos.col - 1] == '.' 
+                                || count < visualizeMap[pos.row - 1][pos.col - 1] - '0'){
+                            visualizeMap[pos.row - 1][pos.col - 1] = count + '0';
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        visualizeMove(primeRobot, max_moves, visualizeMap, boardCopy, count + 1);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+            }
+        }
+    }
+}
+
+void reachGoal(int &primeRobot, int max_moves, Board boardCopy, int count, Position &goal_pos,
+        std::vector<std::vector<std::pair<int, std::string> > > &moves, std::vector<std::pair<int ,std::string> > move){
+    if(count == 0){
+        count ++;
+    }
+    if(count > 0){
+        if(count <= max_moves){
+            for(int i = 0; i < boardCopy.numRobots(); ++ i){
+                Position posOriginal = boardCopy.getRobotPosition(i);
+                if(boardCopy.moveRobot(i, "north")){
+                    move.push_back(std::make_pair(i, "north"));
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(count == max_moves){
+                        if(pos1 == goal_pos && i == primeRobot){
+                            moves.push_back(move);
+                            move.clear();
+                        }
+                        else if(pos1 != goal_pos){
+                            move.clear();
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        reachGoal(primeRobot, max_moves, boardCopy, count + 1, goal_pos, moves, move);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+
+                if(boardCopy.moveRobot(i, "south")){
+                    move.push_back(std::make_pair(i, "south"));
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(count == max_moves){
+                        if(pos1 == goal_pos && i == primeRobot){
+                            moves.push_back(move);
+                            move.clear();
+                        }
+                        else if(pos1 != goal_pos){
+                            move.clear();
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        reachGoal(primeRobot, max_moves, boardCopy, count + 1, goal_pos, moves, move);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+
+                if(boardCopy.moveRobot(i, "east")){
+                    move.push_back(std::make_pair(i, "east"));
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(count == max_moves){
+                        if(pos1 == goal_pos && i == primeRobot){
+                            moves.push_back(move);
+                            move.clear();
+                        }
+                        else if(pos1 != goal_pos){
+                            move.clear();
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        reachGoal(primeRobot, max_moves, boardCopy, count + 1, goal_pos, moves, move);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+
+                if(boardCopy.moveRobot(i, "west")){
+                    move.push_back(std::make_pair(i, "west"));
+                    Position pos1 = boardCopy.getRobotPosition(i);
+                    if(count == max_moves){
+                        if(pos1 == goal_pos && i == primeRobot){
+                            moves.push_back(move);
+                            move.clear();
+                        }
+                        else if(pos1 != goal_pos){
+                            move.clear();
+                        }
+                    }
+                    if(count + 1 <= max_moves){
+                        reachGoal(primeRobot, max_moves, boardCopy, count + 1, goal_pos, moves, move);
+                    }
+                    boardCopy.setSpot(pos1, ' ');
+                    boardCopy.setRobot(posOriginal, i);
+                }
+            }
+        }
+    }
+}
+// Print the visualizeMap
+void printVMap(std::vector<std::vector<char> > &visualizeMap){
+    for(int i = 0; i < visualizeMap.size(); ++ i){
+        std::cout << " ";
+        for(int j = 0; j < visualizeMap[i].size(); ++ j){
+            std::cout << " " << visualizeMap[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+// ==================================================================================
+// ==================================================================================
+
+int main(int argc, char* argv[]) {
+
+    // There must be at least one command line argument, the input puzzle file
+    if (argc < 2) {
+        usage(argv[0]);
+    }
+
+    // By default, the maximum number of moves is unlimited
+    int max_moves = -1;
+
+    // By default, output one solution using the minimum number of moves
+    bool all_solutions = false;
+
+    // By default, do not visualize the reachability
+    char visualize = ' ';   // the space character is not a valid robot!
+
+    // Read in the other command line arguments
+    for (int arg = 2; arg < argc; arg++) {
+        if (argv[arg] == std::string("-all_solutions")) {
+            // find all solutions to the puzzle that use the fewest number of moves
+            all_solutions = true;
+        } else if (argv[arg] == std::string("-max_moves")) {
+            // the next command line arg is an integer, a cap on the  # of moves
+            arg++;
+            assert (arg < argc);
+            max_moves = atoi(argv[arg]);
+            assert (max_moves > 0);
+        } else if (argv[arg] == std::string("-visualize")) {
+            // As a first step towards solving the whole problem, with this
+            // option, let's visualize where the specified robot can move
+            // and how many steps it takes to get there
+            arg++;
+            assert (arg < argc);
+            std::string tmp = argv[arg];
+            assert (tmp.size() == 1);
+            visualize = tmp[0];
+            assert (isalpha(visualize) && isupper(visualize));
+            visualize = toupper(visualize);
+        } else {
+            std::cout << "unknown command line argument" << argv[arg] << std::endl;
+            usage(argv[0]);
+        }
+    }
+
+    // Load the puzzle board from the input file
+    Board board = load(argv[0],argv[1]);
+
+    //
+    //
+    // YOUR CODE STARTS HERE
+    //
+    //
+
+    if(visualize != ' '){
+        Board boardCopy = board;
+        boardCopy.print();
+        std::cout << "Reachable by robot " << visualize << ":" << std::endl;
+        int primeRobot = boardCopy.getRobotNo(visualize);
+        assert(primeRobot >= 0);
+        std::vector<std::vector<char> > visualizeMap;
+        visualizeMap = std::vector<std::vector<char> >(boardCopy.getRows(), std::vector<char>(boardCopy.getCols(),'.'));
+        int count = 0;
+        visualizeMove(primeRobot, max_moves, visualizeMap, boardCopy, count);
+        printVMap(visualizeMap);
+    }
+
+    if(max_moves != -1 && all_solutions == true && visualize == ' '){
+        assert(max_moves >= 0);
+        Board boardCopy = board;
+        boardCopy.print();
+        for(int j = 0; j < boardCopy.numGoals(); ++ j){
+            int least_moves = -1;
+            Position goal_pos = boardCopy.getGoalPosition(j);
+            for(int i = 0; i < boardCopy.numRobots(); ++ i){
+                std::vector<std::vector<char> > visualizeMap;
+                visualizeMap = std::vector<std::vector<char> >(boardCopy.getRows(), std::vector<char>(boardCopy.getCols(),'.'));
+                int count = 0;
+                visualizeMove(i, max_moves, visualizeMap, boardCopy, count);
+                if(least_moves < 0 || least_moves > visualizeMap[goal_pos.row - 1][goal_pos.col - 1] - '0'){
+                    least_moves = visualizeMap[goal_pos.row - 1][goal_pos.col - 1] - '0'; 
+                }
+            }
+            if(least_moves < 0){
+                std::cout << "There is no enough steps to goal." << std::endl;
+            }
+            else{
+                std::cout << "the least_moves is " << least_moves << std::endl;
+
+                std::vector<int> select_robots;
+                for(int i = 0; i < boardCopy.numRobots(); ++ i){
+                    std::vector<std::vector<char> > visualizeMap;
+                    visualizeMap = std::vector<std::vector<char> >(boardCopy.getRows(), 
+                            std::vector<char>(boardCopy.getCols(),'.'));
+                    int count = 0;
+                    visualizeMove(i, max_moves, visualizeMap, boardCopy, count);
+                    if(least_moves == visualizeMap[goal_pos.row - 1][goal_pos.col - 1] - '0'){
+                        select_robots.push_back(i);
+                    }
+                }
+
+                for(int i = 0; i < select_robots.size(); ++ i){
+                    //std::cout<< i << " " << std::endl;
+                    std::vector<std::vector<std::pair<int, std::string> > > moves;
+                    std::vector<std::pair<int, std::string> > move;
+                    int count = 0;
+                    reachGoal(i, least_moves, boardCopy, count, goal_pos, moves, move);
+                    std::cout << moves.size() << "different " << least_moves << " move solutions " << std::endl;
+                    std::cout << std::endl;
+                    for(int i = 0; i < moves.size(); ++ i){
+                        for(int j = 0; j < moves[i].size(); ++ j){
+                            std::cout << "robot " << moves[i][j].first << " moves " << moves[i][j].second << std::endl;
+                        }
+                        std::cout << "All goals are satisfied after " << least_moves << " moves " << std::endl;
+                        std::cout << std::endl;
+                    }
+                }
+            }
+        }
+    }
+
+
+    // for now...  an example of how to use the board print function
+    //board.print();
+
+}
+// ================================================================
+// ================================================================
